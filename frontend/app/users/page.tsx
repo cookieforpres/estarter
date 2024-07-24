@@ -3,7 +3,7 @@ import getRequestClient from "@/app/lib/getRequestClient";
 
 export default async function Users() {
   const client = getRequestClient();
-  const response = await client.user.ListUsers();
+  const response = await client.users.List();
 
   return (
     <section>
