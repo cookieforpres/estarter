@@ -31,7 +31,7 @@ export function PreviewEnv(pr: number | string): BaseURL {
  */
 export default class Client {
     public readonly auth: auth.ServiceClient
-    public readonly user: user.ServiceClient
+    public readonly users: users.ServiceClient
 
 
     /**
@@ -59,7 +59,7 @@ export default class Client {
 
         const base = new BaseClient(target, options ?? {})
         this.auth = new auth.ServiceClient(base)
-        this.user = new user.ServiceClient(base)
+        this.users = new users.ServiceClient(base)
     }
 }
 
@@ -112,7 +112,19 @@ export namespace auth {
     }
 }
 
-export namespace user {
+export namespace users {
+    export interface CreateParams {
+        name: string
+    }
+
+    export interface CreateResponse {
+        user: User
+    }
+
+    export interface GetResponse {
+        user: User
+    }
+
     export interface ListResponse {
         users: User[]
     }
@@ -122,10 +134,6 @@ export namespace user {
         name: string
     }
 
-    export interface UserResponse {
-        user: User
-    }
-
     export class ServiceClient {
         private baseClient: BaseClient
 
@@ -133,17 +141,19 @@ export namespace user {
             this.baseClient = baseClient
         }
 
-        /**
-         * This defines a public endpoint that requires authentication
-         * Learn more: https://encore.dev/docs/primitives/services-and-apis#access-controls
-         */
-        public async GetUser(id: string): Promise<UserResponse> {
+        public async Create(params: CreateParams): Promise<CreateResponse> {
             // Now make the actual call to the API
-            const resp = await this.baseClient.callAPI("GET", `/users/${encodeURIComponent(id)}`)
-            return await resp.json() as UserResponse
+            const resp = await this.baseClient.callAPI("POST", `/users`, JSON.stringify(params))
+            return await resp.json() as CreateResponse
         }
 
-        public async ListUsers(): Promise<ListResponse> {
+        public async Get(id: number): Promise<GetResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callAPI("GET", `/users/${encodeURIComponent(id)}`)
+            return await resp.json() as GetResponse
+        }
+
+        public async List(): Promise<ListResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callAPI("GET", `/users`)
             return await resp.json() as ListResponse
